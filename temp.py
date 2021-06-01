@@ -8,14 +8,18 @@ import pandas as pd
 import plotly.express as px
 from nltk import FreqDist
 import sys
+import argparse
+
+parser = argparse.ArgumentParser(description="Get the sentiment of a subreddit on a key phrase")
+parser.add_argument('subreddit', type=str, help='name of subreddit')
+parser.add_argument('key phrase', type=str, help='word or phrase you want to run by the subreddit')
+parser.add_argument('--show-neutral', '-n', help='include neutral words in barplot', action='store_true')
+args = parser.parse_args()
+subreddit_str = args.subreddit
+key_phrase = getattr(args, 'key phrase')
+show_neutral = args.show_neutral
 
 # TODO add progress notes
-# TODO flag --show-neutral
-# TODO vat args
-
-subreddit_str = 'popular'
-key_phrase = 'books'
-show_neutral = False
 
 # Establish a reddit instance with praw
 # Set up a praw.ini file in your project directory with client_id, client_secret, and user_agent.
