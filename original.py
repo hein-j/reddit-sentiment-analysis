@@ -86,22 +86,21 @@ import matplotlib.pyplot as plt
 
 # create a figure and set of subplots
 # returns figure and array of axes
-# fig, ax = plt.subplots(figsize=(8, 8))
-#
+fig, ax = plt.subplots(figsize=(8, 8))
+
 # # produce counts as percentage
-# counts = df.label.value_counts(normalize=True) * 100
-#
-# sns.barplot(x=counts.index, y=counts, ax=ax)
-#
-# ax.set_xticklabels(['Negative', 'Neutral', 'Positive'])
-# ax.set_ylabel("Percentage")
-#
-# plt.show()
+counts = df.label.value_counts(normalize=True) * 100
+
+sns.barplot(x=counts.index, y=counts, ax=ax)
+
+ax.set_xticklabels(['Negative', 'Neutral', 'Positive'])
+ax.set_ylabel("Percentage")
+
+plt.show()
 
 # remove neutral words
 df_positive_negative = df.loc[df['label'] != 0]
 df_positive_negative.head()
-#print(df_positive_negative.label.value_counts())
 
 fig, ax = plt.subplots(figsize=(8, 8))
 
