@@ -58,3 +58,75 @@ lemmatized_tokens = ([lemmatizer.lemmatize(w) for w in tokens_without_sw])
 
 cleaned_output = lemmatized_tokens
 
+# Apply sentiment analyzer using VADER
+import nltk.sentiment.vader
+from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
+
+sia = SIA()
+results = []
+
+for sentences in cleaned_output:
+    pol_score = sia.polarity_scores(sentences)
+    pol_score['words'] = sentences
+    results.append(pol_score)
+pd.set_option('display.max_columns', None, 'max_colwidth', None)
+df = pd.DataFrame.from_records(results)
+
+# add a label
+df['label'] = 0
+df.loc[df['compound'] > 0.10, 'label'] = 1
+df.loc[df['compound'] < -0.10, 'label'] = -1
+#print(df.head())
+
+# represent results
+#print(df.label.value_counts())
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# create a figure and set of subplots
+# returns figure and array of axes
+# fig, ax = plt.subplots(figsize=(8, 8))
+#
+# # produce counts as percentage
+# counts = df.label.value_counts(normalize=True) * 100
+#
+# sns.barplot(x=counts.index, y=counts, ax=ax)
+#
+# ax.set_xticklabels(['Negative', 'Neutral', 'Positive'])
+# ax.set_ylabel("Percentage")
+#
+# plt.show()
+
+# remove neutral words
+df_positive_negative = df.loc[df['label'] != 0]
+df_positive_negative.head()
+#print(df_positive_negative.label.value_counts())
+
+fig, ax = plt.subplots(figsize=(8, 8))
+
+# produce counts as percentage
+counts = df_positive_negative.label.value_counts(normalize=True) * 100
+
+sns.barplot(x=counts.index, y=counts, ax=ax)
+
+ax.set_xticklabels(['Negative', 'Positive'])
+ax.set_ylabel("Percentage")
+
+# plt.show()
+
+# further visualization
+
+positive_words = list(df.loc[df['label'] == 1].words)
+# print(positive_words)
+
+positive_frequency = FreqDist(positive_words)
+pos_freq = positive_frequency.most_common(20)
+# print(pos_freq)
+
+negative_words = list(df.loc[df['label'] == -1].words)
+negative_frequency = FreqDist(negative_words)
+neg_freq = negative_frequency.most_common(20)
+print(neg_freq)
+
+# visualize using word clouds
