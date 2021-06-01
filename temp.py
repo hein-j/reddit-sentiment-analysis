@@ -19,6 +19,7 @@ subreddit_str = args.subreddit
 key_phrase = getattr(args, 'key phrase')
 show_neutral = args.show_neutral
 
+
 # TODO add progress notes
 
 # Establish a reddit instance with praw
@@ -44,7 +45,6 @@ try:
         raise Exception
 except:
     sys.exit('ERROR: No posts were found for the provided subreddit and key phrase.')
-
 
 
 # Preprocess the inputs
@@ -91,6 +91,8 @@ df.loc[df['compound'] < -0.10, 'label'] = -1
 # remove neutral words
 if not show_neutral:
     df = df.loc[df['label'] != 0]
+    if len(df.index) == 0:
+        sys.exit('ERROR: No words found with positive or negative associations.')
 
 counts = df.label.value_counts(normalize=True) * 100
 
