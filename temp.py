@@ -7,14 +7,15 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import pandas as pd
 import plotly.express as px
 from nltk import FreqDist
-
+import sys
 
 # TODO add progress notes
+# TODO flag --show-neutral
 # TODO vat args
 
-# TODO handle error when they return nothing
 subreddit_str = 'popular'
-key_phrase = 'book'
+key_phrase = 'books'
+show_neutral = False
 
 # Establish a reddit instance with praw
 # Set up a praw.ini file in your project directory with client_id, client_secret, and user_agent.
@@ -26,17 +27,21 @@ subreddit = reddit.subreddit(subreddit_str)
 # TODO unlimit
 # Get user inputs to analyze
 submissions = subreddit.search(key_phrase, limit=5)
-
 relevant_strings = []
+try:
+    for submission in submissions:
+        if submission.selftext:
+            relevant_strings.append(str(submission.selftext))
+        for comment in submission.comments.list():
+            if isinstance(comment, praw.models.MoreComments):
+                continue
+            relevant_strings.append(str(comment.body))
+    if len(relevant_strings) == 0:
+        raise Exception
+except:
+    sys.exit('ERROR: No posts were found for the provided subreddit and key phrase.')
 
-for submission in submissions:
-    relevant_strings.append(str(submission.title))
-    if submission.selftext:
-        relevant_strings.append(str(submission.selftext))
-    for comment in submission.comments.list():
-        if isinstance(comment, praw.models.MoreComments):
-            continue
-        relevant_strings.append(str(comment.body))
+
 
 # Preprocess the inputs
 string_uncleaned = ','.join(relevant_strings)
@@ -50,13 +55,11 @@ tokenized_string = tokenizer.tokenize(string_emojiless)
 # lower case the string
 lower_string_tokenized = [word.lower() for word in tokenized_string]
 
-# TODO remove like
-
 # remove stop words
 nlp = en_core_web_sm.load()
 all_stopwords = nlp.Defaults.stop_words
 text = lower_string_tokenized
-tokens_without_sw = [word for word in text if not word in all_stopwords]
+tokens_without_sw = [word for word in text if word != "like" and word not in all_stopwords]
 
 # normalize via lemmatizing
 lemmatizer = WordNetLemmatizer()
@@ -81,9 +84,13 @@ df['label'] = 0
 df.loc[df['compound'] > 0.10, 'label'] = 1
 df.loc[df['compound'] < -0.10, 'label'] = -1
 
+# remove neutral words
+if not show_neutral:
+    df = df.loc[df['label'] != 0]
+
 counts = df.label.value_counts(normalize=True) * 100
 
-fig = px.bar(x=counts.index,
+main_fig = px.bar(x=counts.index,
              y=counts,
              title="Percentage of Words by Sentiment",
              labels={
@@ -91,17 +98,15 @@ fig = px.bar(x=counts.index,
                  'x': 'Sentiment'
              })
 
-fig.update_layout(
+main_fig.update_layout(
     xaxis=dict(
         tickmode='array',
-        tickvals=[-1, 0, 1],
-        ticktext=['Negative', 'Neutral', 'Positive']
+        tickvals=[-1, 1],
+        ticktext=['Negative', 'Positive']
     )
 )
 
-fig.show()
-
-# further visualization
+# visualize top words
 
 positive_words = list(df.loc[df['label'] == 1].word)
 
@@ -112,23 +117,17 @@ negative_words = list(df.loc[df['label'] == -1].word)
 negative_frequency = FreqDist(negative_words)
 neg_freq = negative_frequency.most_common(20)
 
-# visualize top words
-Pos_words = [str(p) for p in pos_freq]
-Pos_words_string = ','.join(Pos_words)
-
-Neg_words = [str(n) for n in neg_freq]
-Neg_words_string = ','.join(Neg_words)
-
 pos_freq_df = pd.DataFrame(pos_freq)
 pos_freq_df = pos_freq_df.rename(columns={0: 'Bar Graph of Frequent Words', 1: 'Count'}, inplace=False)
 
-fig = px.bar(pos_freq_df, x='Bar Graph of Frequent Words', y='Count', title='Commonly Used Positive Words By Count')
-fig.show()
+pos_fig = px.bar(pos_freq_df, x='Bar Graph of Frequent Words', y='Count', title='Commonly Used Positive Words By Count')
+pos_fig.show()
 
 neg_freq_df = pd.DataFrame(neg_freq)
 neg_freq_df = neg_freq_df.rename(columns={0: 'Bar Graph of Frequent Words', 1: 'Count'}, inplace=False)
 
-fig = px.bar(neg_freq_df, x='Bar Graph of Frequent Words', y='Count', title='Commonly Used Negative Words By Count')
-fig.show()
+neg_fig = px.bar(neg_freq_df, x='Bar Graph of Frequent Words', y='Count', title='Commonly Used Negative Words By Count')
+neg_fig.show()
 
+main_fig.show()
 
