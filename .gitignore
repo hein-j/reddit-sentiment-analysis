@@ -2,3 +2,4 @@
 .idea
 venv
 praw.ini
+__pycache__
