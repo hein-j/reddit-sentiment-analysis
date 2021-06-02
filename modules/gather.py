@@ -4,7 +4,7 @@ import sys
 
 def gather(subreddit, key_phrase):
     print('searching subreddit for key phrase...')
-    submissions = subreddit.search(key_phrase, limit=5)
+    submissions = subreddit.search(key_phrase)
     relevant_strings = []
     print('gathering texts for analysis...')
     try:

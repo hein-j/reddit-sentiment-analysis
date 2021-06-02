@@ -1,7 +1,7 @@
 import emoji
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
-import emoji
+import spacy
 import en_core_web_sm
 
 
