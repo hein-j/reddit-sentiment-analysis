@@ -9,7 +9,7 @@ from modules.visualize import visualize
 # parse args
 args = parse()
 subreddit_str = args.subreddit
-key_phrase = getattr(args, 'key phrase')
+key_phrase = args.key
 show_neutral = args.show_neutral
 
 # establish a reddit instance with praw
