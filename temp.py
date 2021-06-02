@@ -10,6 +10,8 @@ from nltk import FreqDist
 import sys
 import argparse
 
+print('parsing arguments and options...')
+
 parser = argparse.ArgumentParser(description="Get the sentiment of a subreddit on a key phrase")
 parser.add_argument('subreddit', type=str, help='name of subreddit')
 parser.add_argument('key phrase', type=str, help='word or phrase you want to run by the subreddit')
@@ -19,20 +21,19 @@ subreddit_str = args.subreddit
 key_phrase = getattr(args, 'key phrase')
 show_neutral = args.show_neutral
 
-
-# TODO add progress notes
-
+print('establishing reddit instance...')
 # Establish a reddit instance with praw
 # Set up a praw.ini file in your project directory with client_id, client_secret, and user_agent.
 # See https://praw.readthedocs.io/en/latest/getting_started/configuration/prawini.html
 reddit = praw.Reddit("bot1")
-
+print('connecting to subreddit...')
 subreddit = reddit.subreddit(subreddit_str)
 
-# TODO unlimit
 # Get user inputs to analyze
+print('searching subreddit for key phrase...')
 submissions = subreddit.search(key_phrase, limit=5)
 relevant_strings = []
+print('gathering texts for analysis...')
 try:
     for submission in submissions:
         if submission.selftext:
@@ -46,7 +47,7 @@ try:
 except:
     sys.exit('ERROR: No posts were found for the provided subreddit and key phrase.')
 
-
+print('preprocessing the data...')
 # Preprocess the inputs
 string_uncleaned = ','.join(relevant_strings)
 # remove emojis
@@ -73,6 +74,7 @@ lemmatized_tokens = ([lemmatizer.lemmatize(w) for w in tokens_without_sw])
 cleaned_output = lemmatized_tokens
 
 # Apply sentiment analyzer using VADER
+print('applying sentiment analysis...')
 sia = SIA()
 results = []
 
@@ -90,11 +92,14 @@ df.loc[df['compound'] < -0.10, 'label'] = -1
 
 # remove neutral words
 if not show_neutral:
+    print('removing neutral words...')
     df = df.loc[df['label'] != 0]
     if len(df.index) == 0:
         sys.exit('ERROR: No words found with positive or negative associations.')
 
 counts = df.label.value_counts(normalize=True) * 100
+
+print('generating visual representation...')
 
 main_fig = px.bar(x=counts.index,
              y=counts,
