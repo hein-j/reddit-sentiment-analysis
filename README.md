@@ -5,7 +5,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About
 
-Ever wonder what a subreddit thinks about a given subject? This script can provide insight. Input the name of the subreddit and a key word/ phrase to view bar plot representations of the sentiment analysis. 
+Ever wonder how a subreddit feels about a certain subject? This script can provide insight. Input the name of a subreddit and a key word/phrase to view bar plot representations of the sentiment analysis. 
 
 ### Built With
 
@@ -31,7 +31,7 @@ optional arguments:
 ## Getting Started
 
 ### Prerequisites
-* Python3
+* Python3 (3.9.5)
   * See the <a href="https://www.python.org/downloads/">official webpage</a> for download information.
 * Conda
     * You are welcome to use other package management systems, but I ran into a lot of trouble with pip on a Mac M1. I installed conda through <a href="https://github.com/conda-forge/miniforge">Miniforge.</a>
