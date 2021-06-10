@@ -1,6 +1,6 @@
 <h1 align="center">Reddit Sentiment Analysis</h1>
 
-![preview](https://github.com/hein-j/reddit-sentiment-analysis/blob/main/preview.png?raw=true)
+![preview](https://github.com/hein-j/reddit-sentiment-analysis/blob/main/docs/screenshot.png?raw=true)
 
 <!-- ABOUT THE PROJECT -->
 ## About
